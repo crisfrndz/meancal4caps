@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weighted Mean Calculator</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Additional Styles */
+        .container {
+            margin-top: 50px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2 class="text-center mb-4">Weighted Mean Calculator</h2>
+        <form id="meanForm">
+            <div class="form-group">
+                <label for="frequencies">Frequencies for each category:</label>
+                <div class="row">
+                    <div class="col">
+                        <input type="number" class="form-control" id="sa" placeholder="SA" required>
+                    </div>
+                    <div class="col">
+                        <input type="number" class="form-control" id="a" placeholder="A" required>
+                    </div>
+                    <div class="col">
+                        <input type="number" class="form-control" id="pa" placeholder="PA" required>
+                    </div>
+                    <div class="col">
+                        <input type="number" class="form-control" id="d" placeholder="D" required>
+                    </div>
+                    <div class="col">
+                        <input type="number" class="form-control" id="sd" placeholder="SD" required>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="totalRespondents">Total Respondents:</label>
+                <input type="number" class="form-control" id="totalRespondents" readonly>
+            </div>
+            <button type="submit" class="btn btn-primary">Calculate</button>
+        </form>
+
+        <!-- Result Modal -->
+        <div class="modal fade" id="resultModal" tabindex="-1" role="dialog" aria-labelledby="resultModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="resultModalLabel">Weighted Mean Result</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body" id="resultModalBody">
+                        <!-- Result will be displayed here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS and jQuery -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script>
+        document.getElementById('meanForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            
+            var frequencies = [
+                parseInt(document.getElementById('sa').value),
+                parseInt(document.getElementById('a').value),
+                parseInt(document.getElementById('pa').value),
+                parseInt(document.getElementById('d').value),
+                parseInt(document.getElementById('sd').value)
+            ];
+
+            if (frequencies.some(isNaN)) {
+                document.getElementById('resultModalBody').innerHTML = "<div class='alert alert-danger'>Please enter valid frequencies.</div>";
+                $('#resultModal').modal('show');
+                return;
+            }
+
+            var totalRespondents = frequencies.reduce((acc, val) => acc + val, 0);
+            document.getElementById('totalRespondents').value = totalRespondents;
+
+            var weightedMean = calculateWeightedMean(totalRespondents, frequencies);
+            document.getElementById('resultModalBody').innerHTML = "<div class='alert alert-success'>Weighted Mean: " + weightedMean.toFixed(2) + "</div>";
+            $('#resultModal').modal('show');
+        });
+
+        function calculateWeightedMean(totalRespondents, frequencies) {
+            var totalFrequency = frequencies.reduce((acc, val, idx) => acc + val, 0);
+            var totalWeightedScore = 0;
+            
+            // Calculate the weighted score by multiplying each frequency by its corresponding value
+            for (var i = 0; i < frequencies.length; i++) {
+                totalWeightedScore += frequencies[i] * (i + 1);
+            }
+            
+            // Return the weighted mean
+            return totalFrequency === 0 ? "Cannot calculate. Total frequency is 0." : totalWeightedScore / totalFrequency;
+        }
+    </script>
+</body>
+</html>
